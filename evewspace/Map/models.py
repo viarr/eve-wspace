@@ -25,6 +25,7 @@ import time
 from Map import utils
 from Map.utils import MapJSONGenerator
 from django.core.cache import cache
+from API.models import MemberAPIKey, APICharacter # XXX vtadd
 # Create your models here.
 
 class WormholeType(models.Model):
@@ -77,12 +78,6 @@ class System(SystemData):
     sysclass_choices = ((1, "C1"), (2, "C2"), (3, "C3"), (4, "C4"), (5, "C5"),
             (6, "C6"), (7, "High Sec"), (8, "Low Sec"), (9, "Null Sec"))
     sysclass = models.IntegerField(choices = sysclass_choices)
-    importance_choices = ((0, "Regular"),
-                     (1, "Dangerous System"),
-                     (2, "Important System"))
-    importance = models.IntegerField(choices = importance_choices, default = 0)
-    occupied = models.TextField(blank = True)
-
     occupied = models.TextField(blank = True)
     info = models.TextField(blank = True)
     lastscanned = models.DateTimeField()
@@ -110,6 +105,9 @@ class System(SystemData):
             return self.ksystem
 
     def save(self, *args, **kwargs):
+        # Make sure any new lines in info or occupied are replaced with <br />
+        self.info = self.info.replace("\n", "<br />")
+        self.occupied = self.occupied.replace("\n", "<br />")
         self.updated = datetime.now(pytz.utc)
         if self.lastscanned < datetime.now(pytz.utc) - timedelta(days=3):
             self.lastscanned = datetime.now(pytz.utc)
@@ -234,6 +232,7 @@ class Map(models.Model):
         """
         Adds a log entry into a MapLog for the map.
         """
+        # XXX check
         log = MapLog(user=user, map=self, action=action,
                      timestamp=datetime.now(pytz.utc),
                      visible=visible)
@@ -247,7 +246,7 @@ class Map(models.Model):
         2 = Write Access
         """
         #Anonymous users always return 0
-        if user.is_anonymous():
+        if user.is_anonymous(): 
             return 0
         #Special case: If user is a map admin, always return 2
         if user.has_perm('Map.map_admin'):
@@ -376,6 +375,7 @@ class Wormhole(models.Model):
     time_status = models.IntegerField(choices = ((0, "Fine"), (1, "End of Life")))
     mass_status = models.IntegerField(choices = ((0, "No Shrink"),
         (1, "First Shrink"), (2, "Critical")))
+    mass_amount = models.BigIntegerField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     eol_time = models.DateTimeField(null=True)
     collapsed = models.NullBooleanField(null=True)
@@ -391,6 +391,7 @@ class Wormhole(models.Model):
     def delete(self, *args, **kwargs):
         self.map.clear_caches()
         super(Wormhole, self).save(*args, **kwargs)
+
 
 class SignatureType(models.Model):
     """
@@ -597,4 +598,16 @@ class SignatureForm(ModelForm):
     class Meta:
         model = Signature
         fields = ('sigid', 'sigtype', 'info')
+
+class Ship(models.Model):
+    shipname = models.CharField(max_length=255)
+    shipmass = models.BigIntegerField()
+
+class JumpLog(models.Model):
+    # id, timestamp, action_location, action_type [jumpfrom, sigadd, sigup], details [srcsys, sigid]
+    user_id = models.IntegerField()
+    char_name = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    src = models.CharField(max_length=255)
+    dest = models.CharField(max_length=255)
 

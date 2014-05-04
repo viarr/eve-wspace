@@ -149,8 +149,7 @@ class MemberAPIKey(APIKey):
             self.save()
             return False
         self.access_mask = result.key.accessMask
-        corp_list = []
-        access_error_list = []
+        corp_list = access_error_list = []
         for character in result.key.characters:
             corp_list.append(character.corporationID)
         access_required = _build_access_req_list(self.user, corp_list)
@@ -173,11 +172,25 @@ class MemberAPIKey(APIKey):
                 pass
             return False
         else:
+            self.set_groups_for_account()
             self.valid = True
             self.validation_error = ""
             self.save()
             self.update_characters()
+            # XXX vtadd here check if IGB user is in characters array.
             return True
+
+    def set_groups_for_account(self):
+        # XXX check alliance matches ours TODO use config file
+        api_keys = self.user.api_keys.all() #  get api keys for authed user
+        can_view_maps = 0
+        for api_key in api_keys:
+           for character in api_key.characters.all():
+               if character.alliance == "The Hole Next Door":
+                   can_view_maps = 1
+        if can_view_maps == 1:
+            # add access entry to view/edit sauce 
+           self.user.groups.add(2)
 
     def update_characters(self):
         auth = self.get_authenticated_api()

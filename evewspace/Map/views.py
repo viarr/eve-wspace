@@ -114,13 +114,59 @@ def map_refresh(request, map_id):
     if not request.is_ajax():
         raise PermissionDenied
     current_map = get_object_or_404(Map, pk=map_id)
+
+    if request.is_igb:
+      char_cache_key = 'char_%s_location' % request.eve_charid
+      old_location = cache.get(char_cache_key)
+      if old_location:
+        my_sys = get_object_or_404(System, pk=old_location[0])
+        my_sys.remove_active_pilot(request.eve_charid)
+        my_sys.add_active_pilot(request.user.username, request.eve_charid, request.eve_charname, request.eve_shipname, request.eve_shiptypename)
+      result = None
     result = [
         datetime.strftime(datetime.now(pytz.utc),
                           "%Y-%m-%d %H:%M:%S.%f"),
         utils.MapJSONGenerator(current_map,
                                request.user).get_systems_json()
     ]
+		# TODO update active pilots
+		# get users current system 
+    #map_sys = get_object_or_404(MapSystem, pk=ms_id)
+		# if this system is on the map, update. Otherwise, don't..
+		#remove_active_pilot(request.eve_charid)
+    #map_sys.remove_active_pilot(request.eve_charid)
+    #map_sys.add_active_pilot(request.user.username, request.eve_charid, 
+		#											request.eve_charname, request.eve_shipname,
+		#											request.eve_shiptypename)
     return HttpResponse(json.dumps(result))
+
+def log_movement(oldSys, newSys, charName, shipType, current_map, user):
+    # get msid for oldsys
+    #   print oldSys
+    #   print newSys
+    try:
+        oldSysMapId = current_map.systems.filter(system=oldSys).all()[0]
+        newSysMapId = current_map.systems.filter(system=newSys).all()[0] # BUG
+        wh = Wormhole.objects.filter(top__in=[oldSysMapId,newSysMapId],bottom__in=[oldSysMapId,newSysMapId]).all()[0]
+
+        # get current ship size
+        #print shipType
+        shipSize = Ship.objects.get(shipname=shipType).shipmass
+
+        # get old mass
+        if wh.mass_amount != None:
+            wh.mass_amount = (wh.mass_amount + shipSize)
+        else:
+            wh.mass_amount = shipSize
+
+        wh.save()
+    except:
+       print "Hole didn't exist yet"
+
+    # jumplog
+    jl = JumpLog.objects.create(user_id=user.id, char_name=charName, src=oldSys, dest=newSys)
+    jl.save()
+
 
 
 def _checkin_igb_trusted(request, current_map):
@@ -130,18 +176,24 @@ def _checkin_igb_trusted(request, current_map):
     containing the html for a system add dialog if we detect that a new system
     needs to be added
     """
+    # XXX possibly where the logging needs to happen
     can_edit = current_map.get_permission(request.user) == 2
     current_location = (request.eve_systemid, request.eve_charname,
             request.eve_shipname, request.eve_shiptypename)
     char_cache_key = 'char_%s_location' % request.eve_charid
     old_location = cache.get(char_cache_key)
     result = None
-    current_system = get_object_or_404(System, pk=current_location[0])
+    #print old_location
 
     if old_location != current_location:
+        current_system = get_object_or_404(System, pk=current_location[0])
         if old_location:
             old_system = get_object_or_404(System, pk=old_location[0])
             old_system.remove_active_pilot(request.eve_charid)
+            log_movement(old_system, current_system, request.eve_charname, request.eve_shiptypename, current_map, request.user) #XXX vtadd
+        current_system.add_active_pilot(request.user.username,
+                request.eve_charid, request.eve_charname, request.eve_shipname,
+                request.eve_shiptypename)
         request.user.get_profile().update_location(current_system.pk,
                 request.eve_charid, request.eve_charname, request.eve_shipname,
                 request.eve_shiptypename)
@@ -170,13 +222,10 @@ def _checkin_igb_trusted(request, current_map):
                 k162_type = WormholeType.objects.get(name="K162")
                 new_ms.connect_to(context['oldsystem'], k162_type, k162_type)
                 result = 'silent'
+
+            # maybe fixes
     else:
         cache.set(char_cache_key, current_location, 60 * 5)
-        # Use add_active_pilot to refresh the user's record in the global
-        # location cache
-        current_system.add_active_pilot(request.user.username,
-                request.eve_charid, request.eve_charname, request.eve_shipname,
-                request.eve_shiptypename)
 
     return result
 
@@ -756,16 +805,20 @@ def edit_system(request, map_id, ms_id):
                                 )
     if request.method == 'POST':
         map_system.friendlyname = request.POST.get('friendlyName', '')
-        map_system.system.info = request.POST.get('info', '')
-        map_system.system.occupied = request.POST.get('occupied', '')
-        map_system.system.importance = request.POST.get('importance', '0')
-        map_system.system.save()
+        if (
+                (map_system.system.info != request.POST.get('info', '')) or
+                (map_system.system.occupied !=
+                 request.POST.get('occupied', ''))
+        ):
+            map_system.system.info = request.POST.get('info', '')
+            map_system.system.occupied = request.POST.get('occupied', '')
+            map_system.system.save()
         map_system.save()
         map_system.map.add_log(request.user, "Edited System: %s (%s)"
                                % (map_system.system.name,
                                   map_system.friendlyname))
         return HttpResponse()
-    raise PermissionDenied 
+    raise PermissionDenied
 
 
 # noinspection PyUnusedLocal

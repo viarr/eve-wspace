@@ -1,6 +1,9 @@
 <div id="addSystemDialog">
     <div class="modal-header">
-        <h4>Add System Connected To: {{topMs.system.name}}</h4>
+        <h4>Add System Connected To: {{topMs.system.name}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="#" id="sysCloseButton" class="btn" data-dismiss="modal">Close</a>
+          <a href="#" id="sysAddSubmit" onclick="$('#sysAddForm').submit();" class="btn btn-primary">Add System</a>
+	</h4>
     </div>
     <div class="modal-body">
     <form id="sysAddForm" class="form-horizontal" action="system/new/" method="post">
@@ -9,7 +12,7 @@
         <div class="control-group">
             <label class="control-label" for="sysNameBox">System:</label>
             <div class="controls">
-                <input type="text" class="sysAddInput systemAuto" name="bottomSystem" id="sysNameBox" value ="{{newsystem}}" />
+                <input type="text" class="sysAddInput systemAuto" name="bottomSystem" id="sysNameBox" value ="{{newsystem}}" autofocus />
             </div>
         </div>
         <div class="control-group">
@@ -66,10 +69,12 @@
         </form>
     </div>
 </div>
+<!--
     <div class="modal-footer">
         <a href="#" id="sysCloseButton" class="btn" data-dismiss="modal">Close</a>
-            <a href="#" id="sysAddSubmit" onclick="$('#sysAddForm').submit();" class="btn btn-primary">Add System</a>
+        <a href="#" id="sysAddSubmit" onclick="$('#sysAddForm').submit();" class="btn btn-primary">Add System</a>
     </div>
+-->
         <script type="text/javascript">
            $('#sysAddForm').submit(function(e){
                         e.preventDefault();

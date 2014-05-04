@@ -1,5 +1,7 @@
     <div class="modal-header">
         <h4>You have entered an unmapped system!</h4>
+        <a href="#" class="btn" id="btnClose">Don't Add</a>
+        <a href="#" class="btn btn-primary" id="btnIGBAdd">Add System</a>
     </div>
     <div class="modal-body">
     <form id="sysAddForm" action="system/new/" method="post">
@@ -48,8 +50,6 @@
     </form>
 </div>
 <div class="modal-footer">
-    <a href="#" class="btn" id="btnClose">Don't Add</a>
-    <a href="#" class="btn btn-primary" id="btnIGBAdd">Add System</a>
 </div>
         <script type="text/javascript">
             $('#sysAddForm').submit(function(e){

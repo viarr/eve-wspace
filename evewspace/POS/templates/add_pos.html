@@ -21,7 +21,7 @@
       <form id="addPOSForm" action="/pos/{{system.pk}}/add" method="POST">
         {% csrf_token %}
         <input id="auto-field" name="auto" value="1" type="hidden">
-        Full Corp Name: <input id="corpBox" class="corpAuto" name="corp" type="text" > <br />
+        Full Corp Name: <input id="corpBox" class="corpAuto" name="corp" type="text"> <br />
         <div class="manual-fields">
           <span class="label label-warning" id="digiterror">Please enter digits only for planet and moon. </span><br /><br />
           Planet: <input name="planet" class="input-mini" type="text"> 

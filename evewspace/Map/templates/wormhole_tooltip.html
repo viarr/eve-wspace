@@ -25,7 +25,7 @@
             {% if wh.mass_status = 0 %}
             <span class="massStatus label label-success">Mass: Normal
             {% elif wh.mass_status = 1 %}
-            <span class="massStatus label label-warning">Mass: First Shrink
+            <span class="massStatus label label-warning">Mass: Reduced
             {% else %}
             <span class="massStatus label label-important">Mass: Critical
             {% endif %}
@@ -45,10 +45,12 @@
         <div class="wormholeOverallInfo span4">
         {% if wh.top_type.maxmass > wh.bottom_type.maxmass %}
             <strong>Max Mass: {{wh.top_type.maxmass|intcomma}} kg </strong> <br />
-            <strong>Jump Mass: {{wh.top_type.jumpmass|intcomma}} kg </strong>
+            <strong>Jump Mass: {{wh.top_type.jumpmass|intcomma}} kg </strong><br />
+            <strong>Counted Mass: {{wh.mass_amount|intcomma}} kg </strong>
         {% else %}
             <strong>Max Mass: {{wh.bottom_type.maxmass|intcomma}} kg </strong><br />
-            <strong>Jump Mass: {{wh.bottom_type.jumpmass|intcomma}} kg </strong>
+            <strong>Jump Mass: {{wh.bottom_type.jumpmass|intcomma}} kg </strong><br />
+            <strong>Counted Mass: {{wh.mass_amount|intcomma}} kg </strong>
         {% endif %}
         </div>
     </div>

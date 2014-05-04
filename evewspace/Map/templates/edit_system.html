@@ -1,27 +1,25 @@
 <div id="editSystemDialog">
     <div class="modal-header">
         <h4>Edit System: {{mapsys.system.name}}({{mapsys.friendlyname}})</h4>
+        <a href="#" class="btn" id="btnClose">Cancel</a>
+        <a href="#" class="btn btn-primary" id="btnEditSys">Edit Info</a>
     </div>
     <div class="modal-body">
     <form id="editSystemForm" class="editSystemForm" method="post" action="system/{{mapsys.pk}}/edit/">
         {% csrf_token %}
         <h4>Friendly Name:</h4> 
-        <input type="text" id="friendlyField" name="friendlyName" value="{{mapsys.friendlyname}}">
+        <input type="text" id="friendlyField" name="friendlyName" value="{{mapsys.friendlyname}}" autofocus>
         <h4>Info: </h4>
         <textarea name="info" style="color: #000000;" id="infoField" rows=8 cols=50>{{info}}</textarea> 
         <h4>Occupied: </h4>
         <textarea name="occupied" style="color: #000000;" id="occupiedField" rows=8 cols=50 >{{occupied}}</textarea><br />
-        Type: &nbsp
-        <input type="radio" class="editWormholeInput" name="importance" value="0" {% if mapsys.system.importance == 0 %} checked="checked" {% endif %}> Regular System&nbsp
-        <input type="radio" class="editWormholeInput" name="importance" value="1" {% if mapsys.system.importance == 1 %} checked="checked" {% endif %}> Dangerous System &nbsp
-        <input type="radio" class="editWormholeInput" name="importance" value="2" {% if mapsys.system.importance == 2 %} checked="checked" {% endif %}> Important System
         <br />
         <input type="submit" style="display: none;">
     </form>
 </div>
 <div class="modal-footer">
-    <a href="#" class="btn" id="btnClose">Cancel</a>
-    <a href="#" class="btn btn-primary" id="btnEditSys">Edit Info</a>
+<!--    <a href="#" class="btn" id="btnClose">Cancel</a>
+    <a href="#" class="btn btn-primary" id="btnEditSys">Edit Info</a> -->
 </div>
     <script type="text/javascript">
         $('#editSystemForm').submit(function(e){
