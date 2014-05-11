@@ -396,9 +396,19 @@ function GetWormholeTooltips(){
         success: function(data){
             $('#wormholeTooltipHolder').html(data);
         }
-            });
+    });
 }
 
+function GetActivePilotTooltips() {
+    address = "pilot/tooltips/";
+    $.ajax({
+        type: "GET",
+        url: address,
+        success: function(data) {
+            $('#').html(data);
+        }
+    });
+}
 
 function RefreshMap(){
     address = "refresh/";
@@ -880,6 +890,7 @@ function DrawSystem(system) {
     var sysName = friendly + system.Name;
     sysName += "\n("+classString+"+"+system.activePilots+"P)";
     var sysText;
+    var ellipseSystem;
     if (system.LevelX != null && system.LevelX > 0) {
         var childSys = paper.rect((sysX-50), (sysY-25), 80, 45, 5);
         if (system.activePilots > 0 && highlightActivePilots === true){
@@ -899,7 +910,7 @@ function DrawSystem(system) {
           sysText = paper.text(sysX, (sysY+7), sysName);
         }
         else {*/
-          sysText = paper.text(sysX, sysY, sysName);
+        //  sysText = paper.text(sysX, sysY, sysName);
 //        }
         sysText.msID = system.msID;
         sysText.sysID = system.sysID;
@@ -909,6 +920,8 @@ function DrawSystem(system) {
             sysText.dblclick(onSysDblClick);
         }
         ColorSystem(system, childSys, sysText);
+        childSys.imageURL = system.imageURL;
+        ellipseSystem = childSys;
         childSys.collapsed = system.collapsed;
         objSystems.push(childSys);
         var parentIndex = GetSystemIndex(system.ParentID);
@@ -934,6 +947,7 @@ function DrawSystem(system) {
         var rootSys = paper.rect((sysX-50), (sysY-25), 80, 45, 5);
         rootSys.msID = system.msID;
         rootSys.sysID = system.sysID;
+        rootSys.imageURL = system.imageURL;
         rootSys.click(onSysClick);
         sysText = paper.text((sysX-10), (sysY-2), sysName);
         sysText.msID = system.msID;
@@ -944,12 +958,20 @@ function DrawSystem(system) {
             sysText.dblclick(onSysDblClick);
         }
         ColorSystem(system, rootSys, sysText);
+        ellipseSystem = rootSys;
 
         objSystems.push(rootSys);
     }
     if (effect_color != 'NaC') {
       effectImg = paper.circle((sysX-40), (sysY-15), 5);
       effectImg.attr({'fill':effect_color});
+    }
+// here
+    iconX = ellipseSystem.attr("cx")+40;
+    iconY = ellipseSystem.attr("cy")-35;
+    if (system.imageURL){
+        iconInstance = paper.image(system.imageURL, (sysX+10), (sysY+10), 20, 20);
+        iconInstance.attr({});
     }
 }
 
@@ -1096,11 +1118,6 @@ function ColorSystem(system, ellipseSystem, textSysName) {
     	    sysStroke = "#ffffff";
         }
         sysStrokeDashArray = "- ";
-    }
-    iconX = ellipseSystem.attr("cx")+40;
-    iconY = ellipseSystem.attr("cy")-35;
-    if (system.imageURL){
-        paper.image(system.imageURL, iconX, iconY, 25, 25);
     }
     ellipseSystem.attr({ fill: sysColor, stroke: sysStroke, "stroke-width": sysStrokeWidth, cursor: "pointer", "stroke-dasharray": sysStrokeDashArray });
     textSysName.attr({ fill: textColor, "font-size": textFontSize, cursor: "pointer" });
