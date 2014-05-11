@@ -86,6 +86,10 @@ def map_checkin(request, map_id):
                             mimetype="application/json")
     time_string = request.POST['loadtime']
 
+    if time_string == 'null':
+        return HttpResponse(json.dumps({'error': "No loadtime"}),
+                            mimetype="application/json")
+
     load_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S.%f")
     load_time = load_time.replace(tzinfo=pytz.utc)
 

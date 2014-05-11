@@ -160,13 +160,14 @@ class MapJSONGenerator(object):
         """
         staticPrefix = "%s" % (settings.STATIC_URL + "images/")
 
-        if system.system.importance == 0:
-            return None
-        if system.system.importance == 1:
-            return staticPrefix + "skull.png"
-        if system.system.importance == 2:
-            return staticPrefix + "mark.png"
-        raise ValueError                                       
+	if hasattr(system.system, 'importance'):
+         if system.system.importance == 0:
+             return None
+         if system.system.importance == 1:
+             return staticPrefix + "skull.png"
+         if system.system.importance == 2:
+             return staticPrefix + "mark.png"
+         raise ValueError                                       
 
 
     def get_systems_json(self):
