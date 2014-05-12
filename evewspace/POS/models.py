@@ -22,6 +22,7 @@ from Map.models import System
 import csv
 from django.contrib.auth.models import User
 import pytz
+import operator
 
 
 class POS(models.Model):
@@ -133,8 +134,10 @@ class POS(models.Model):
                 elif 1285 in groupTree and 478 not in groupTree:
                     itemDict.update({itemType.name: 1})
 
+        itemDictx = sorted(itemDict.keys())
+
         self.fitting = "Imported from D-Scan:\n"
-        for itemtype in itemDict:
+        for itemtype in itemDictx:
             self.fitting += "\n%s : %s" % (itemtype, itemDict[itemtype])
         if towers == 1 and self.towertype_id is None and self.posname is None:
             self.towertype = towertype
