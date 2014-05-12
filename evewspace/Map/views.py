@@ -843,6 +843,10 @@ def edit_wormhole(request, map_id, wh_id):
                                 {'wormhole': wormhole}
                                 )
     if request.method == 'POST':
+        manualShipMassAdd = request.POST.get('massAdd',0)
+        if manualShipMassAdd != "":
+            addedMass = Ship.objects.get(shipname=manualShipMassAdd).shipmass
+            wormhole.mass_amount = (wormhole.mass_amount + addedMass)
         wormhole.mass_status = int(request.POST.get('massStatus', 0))
         wormhole.time_status = int(request.POST.get('timeStatus', 0))
         wormhole.top_type = get_object_or_404(

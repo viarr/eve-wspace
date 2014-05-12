@@ -1,6 +1,8 @@
 <div id="editWormholeDialog">
     <div class="modal-header">
         <h4>Edit Wormhole</h4>
+    	<a href="#" class="btn" id="btnClose">Cancel</a>
+	<a href="#" class="btn btn-primary" id="btnEditWH">Save Wormhole</a>
     </div>
     <div class="modal-body">
     <form id="editWormholeForm" class="editWormholeForm" method="post" action="wormhole/{{wormhole.pk}}/edit/">
@@ -30,12 +32,13 @@
          <input type="radio" class="editWormholeInput" name="bottomBubbled" value="1" {% if wormhole.bottom_bubbled %} checked="checked" {% endif %}> Yes
         <br />
         <br />
+	Add mass: &nbsp
+	<input type="text" id="massAdd" class="editWormholeInput shipAuto" name="massAdd" value="{{ship.shipname}}">
+        <br />
         <input type="submit" style="display: none;">
     </form>
 </div>
 <div class="modal-footer">
-    <a href="#" class="btn" id="btnClose">Cancel</a>
-    <a href="#" class="btn btn-primary" id="btnEditWH">Save Wormhole</a>
 </div>
     <script type="text/javascript">
         $('#editWormholeForm').submit(function(e){

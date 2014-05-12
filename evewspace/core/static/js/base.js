@@ -62,6 +62,17 @@ $(document).on("focus", ".wormholeAuto", function(){
        });
 
  });
+//Live binding for ship autocompletes
+$(document).on("focus", ".shipAuto", function(){
+        $(this).typeahead({
+            source: function(query, process){
+                 $.get('/search/ship/', {'term': query}, function(data){
+                    process(JSON.parse(data));
+                });
+            }
+       });
+
+ });
 //Live binding for item type autocompletes
 $(document).on("focus", ".typeAuto", function(){
       $(this).typeahead({

@@ -382,6 +382,7 @@ class Wormhole(models.Model):
 
     def save(self, *args, **kwargs):
         self.map.clear_caches()
+        print kwargs
         if self.time_status == 1 and not self.eol_time:
             self.eol_time = datetime.now(pytz.utc)
         elif self.time_status != 1:
@@ -602,6 +603,11 @@ class SignatureForm(ModelForm):
 class Ship(models.Model):
     shipname = models.CharField(max_length=255)
     shipmass = models.BigIntegerField()
+
+    def __unicode__(self):
+        """Returns ShipName as unicode representation."""
+        return self.shipname
+
 
 class JumpLog(models.Model):
     # id, timestamp, action_location, action_type [jumpfrom, sigadd, sigup], details [srcsys, sigid]

@@ -1,6 +1,6 @@
 #    Eve W-Space
 #    Copyright (C) 2013  Andrew Austin and other contributors
-#
+#SDEcasd
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,8 +15,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from search import registry
-from models import System, WormholeType, SiteSpawn
+from models import System, WormholeType, SiteSpawn, Ship
 
 registry.register(System, 'system', 'name')
 registry.register(WormholeType, 'whtype', 'name')
 registry.register(SiteSpawn, 'site','sitename')
+registry.register(Ship, 'ship', 'shipname')
